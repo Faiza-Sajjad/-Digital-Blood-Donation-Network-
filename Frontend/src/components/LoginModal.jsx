@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { X, ShieldCheck, Lock, Heart, Calendar, Mail, User, KeyRound, Eye, EyeOff, Phone, AlertCircle, CheckCircle2 } from 'lucide-react';
 
-export default function LoginModal({ role, onClose, onSubmit }) {
+export default function LoginModal({ role: initialRole, onClose, onSubmit }) {
+  const [role, setRole] = useState(initialRole || 'donor'); // CHANGED: role ab andar se bhi select ho sakta hai
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [adminSecret, setAdminSecret] = useState('');
@@ -199,6 +200,13 @@ export default function LoginModal({ role, onClose, onSubmit }) {
     boxSizing: 'border-box', ...extra,
   });
 
+  // NEW: role select karne ke liye options — modal ke andar dikhne wale
+  const roleOptions = [
+    { key: 'donor', label: 'Donor', color: '#dc2626' },
+    { key: 'seeker', label: 'Seeker', color: '#1e293b' },
+    { key: 'admin', label: 'Admin', color: '#2563eb' },
+  ];
+
   return (
     <>
       <style>{`
@@ -225,6 +233,7 @@ export default function LoginModal({ role, onClose, onSubmit }) {
         .otp-input{width:100%;border:2px solid #efefef;border-radius:14px;padding:14px;font-size:28px;font-weight:800;text-align:center;letter-spacing:12px;outline:none;font-family:'JetBrains Mono',monospace;color:#ef4444;background:#fafafa;box-sizing:border-box;transition:all 0.2s;}
         .otp-input:focus{border-color:#ef4444;background:#fff;box-shadow:0 0 0 3px rgba(239,68,68,0.09);}
         .otp-input.err{border-color:#fca5a5;background:#fff5f5;}
+        .role-btn{flex:1;padding:9px 0;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;transition:all 0.15s;}
       `}</style>
 
       <div className="lm">
@@ -273,6 +282,31 @@ export default function LoginModal({ role, onClose, onSubmit }) {
               <>
                 {/* ── Header ── */}
                 <div style={{ padding: '26px 26px 0' }}>
+
+                  {/* NEW: Role Selector — user yahan se apna role chunta hai */}
+                  <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
+                    {roleOptions.map(r => (
+                      <button
+                        key={r.key}
+                        type="button"
+                        className="role-btn"
+                        onClick={() => {
+                          setRole(r.key);
+                          // role badalne par purane role-specific fields aur errors clear kar do
+                          setErrors({});
+                          setTouched({});
+                        }}
+                        style={{
+                          border: role === r.key ? `2px solid ${r.color}` : '1.5px solid #eee',
+                          background: role === r.key ? r.color : '#fafafa',
+                          color: role === r.key ? '#fff' : '#999',
+                        }}
+                      >
+                        {r.label}
+                      </button>
+                    ))}
+                  </div>
+
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: isAdmin ? '#fff5f5' : '#f0fdf4', border: `1px solid ${isAdmin ? '#fca5a5' : '#86efac'}`, borderRadius: 8, padding: '4px 10px', marginBottom: 14 }}>
                     <Heart size={11} color={isAdmin ? '#ef4444' : '#16a34a'} fill={isAdmin ? '#ef4444' : '#16a34a'} />
                     <span style={{ fontSize: 10, fontWeight: 700, color: isAdmin ? '#ef4444' : '#16a34a', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
