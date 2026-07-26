@@ -65,17 +65,28 @@ export default function VideoLoginSection() {
               </div>
             </motion.div>
 
-            {/* Button Part — CHANGED: teen buttons ki jagah ab ek hi "Login" button hai.
-                Role ab LoginModal ke andar user khud select karta hai. */}
-            <div className="space-y-4">
-              <h2 className="text-3xl font-bold mb-6">Join Our Community</h2>
-              <button
-                onClick={() => handleRoleSelect('donor')}
-                className="w-full bg-red-600 text-white px-8 py-4 rounded-xl font-semibold shadow-md hover:bg-red-700 transition"
-              >
-                Login
-              </button>
-            </div>
+            {/* Button Part — CHANGED. */}
+            <div className="space-y-6">
+  <h2 className="text-3xl font-bold mb-2">Join Our Community</h2>
+
+  {/* Quote / Ayat Box */}
+  <div className="bg-red-50 border-l-4 border-red-600 rounded-r-xl px-6 py-5">
+    <p className="text-gray-700 italic leading-relaxed">
+      "Whoever saves one life, it is as if he has saved all of mankind."
+    </p>
+    <p className="text-sm text-red-600 font-semibold mt-2">
+      — Surah Al-Ma'idah, 5:32
+    </p>
+  </div>
+
+  {/* Login Button  */}
+  <button
+    onClick={() => handleRoleSelect('donor')}
+    className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-red-200 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+  >
+    Login to Continue
+  </button>
+</div>
           </div>
         </div>
       </section>
