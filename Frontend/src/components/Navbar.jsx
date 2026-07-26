@@ -44,12 +44,7 @@ export default function Navbar() {
               </a>
             ))}
             
-            <a
-              href="/#login"
-              className="relative overflow-hidden bg-red-600 text-white px-7 py-2.5 rounded-full font-medium transition-all duration-300 hover:bg-red-700 hover:shadow-[0_8px_20px_-6px_rgba(220,38,38,0.5)] active:scale-95"
-            >
-              Login
-            </a>
+           
           </div>
 
           {/* Mobile Menu Button */}
@@ -81,13 +76,7 @@ export default function Navbar() {
                   {link}
                 </a>
               ))}
-              <a
-                href="/#login"
-                className="bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700 text-center font-bold shadow-lg shadow-red-200"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Login
-              </a>
+             
             </motion.div>
           )}
         </AnimatePresence>
