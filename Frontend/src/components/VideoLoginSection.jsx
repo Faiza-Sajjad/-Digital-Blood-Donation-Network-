@@ -19,27 +19,22 @@ export default function VideoLoginSection() {
     try {
       // Signup mein OTP verify karna hai — /register route pe otp bhi jayega
       const endpoint = formData.isSignUp ? "/api/auth/register" : "/api/auth/login";
-
       const response = await fetch(`http://localhost:5000${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          role: selectedRole
-        })
+        // CHANGED: role ab sirf formData se aayega (jo user ne modal ke andar select kiya),
+        // pehle yahan "role: selectedRole" likh kar usko overwrite kar diya jata tha —
+        // isse modal ke andar role badalne wala naya feature kaam nahi karta tha.
+        body: JSON.stringify(formData)
       });
-
       const data = await response.json();
-
       if (data.success) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("userRole", data.user.role);
         localStorage.setItem("userName", data.user.name);
         localStorage.setItem("userId", data.user.id);
-
         setShowLoginModal(false);
         toast.success(`Welcome ${data.user.name}!`);
-
         if (data.user.role === 'donor') navigate('/donor-dashboard');
         else if (data.user.role === 'seeker') navigate('/seeker-dashboard');
         else if (data.user.role === 'admin') navigate('/admin-dashboard');
@@ -57,7 +52,6 @@ export default function VideoLoginSection() {
       <section id="login" className="py-16 bg-white overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-
             {/* Video Part */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
@@ -71,22 +65,16 @@ export default function VideoLoginSection() {
               </div>
             </motion.div>
 
-            {/* Buttons Part */}
+            {/* Button Part — CHANGED: teen buttons ki jagah ab ek hi "Login" button hai.
+                Role ab LoginModal ke andar user khud select karta hai. */}
             <div className="space-y-4">
               <h2 className="text-3xl font-bold mb-6">Join Our Community</h2>
-              {[
-                { id: 'donor', label: 'Login as Blood Donor', color: 'bg-red-600' },
-                { id: 'seeker', label: 'Login as Blood Seeker', color: 'bg-gray-800' },
-                { id: 'admin', label: 'Login as Admin', color: 'bg-blue-600' },
-              ].map((btn) => (
-                <button
-                  key={btn.id}
-                  onClick={() => handleRoleSelect(btn.id)}
-                  className={`w-full ${btn.color} text-white px-8 py-4 rounded-xl font-semibold shadow-md`}
-                >
-                  {btn.label}
-                </button>
-              ))}
+              <button
+                onClick={() => handleRoleSelect('donor')}
+                className="w-full bg-red-600 text-white px-8 py-4 rounded-xl font-semibold shadow-md hover:bg-red-700 transition"
+              >
+                Login
+              </button>
             </div>
           </div>
         </div>
