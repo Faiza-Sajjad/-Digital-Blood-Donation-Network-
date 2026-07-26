@@ -2,6 +2,7 @@ import { Activity, List, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom'; // Link import
+
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuVariants = {
@@ -9,12 +10,14 @@ export default function Navbar() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } },
     exit: { opacity: 0, y: -20, transition: { duration: 0.2, ease: "easeIn" } },
   };
+
   // Helper function to handle correct path
   const getPath = (link) => {
     if (link === 'Resources') return '/blood-donation-guide';
-    if (link === 'Home') return '/#home'; // Root slash 
-    return `/#${link.toLowerCase()}`; // Root slash 
+    if (link === 'Home') return '/#home'; // Root slash
+    return `/#${link.toLowerCase()}`; // Root slash
   };
+
   return (
     <nav className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-gray-100">
       <div className="container mx-auto px-4 py-4">
@@ -26,10 +29,11 @@ export default function Navbar() {
               Digital Blood Donation <span className="text-red-600">Network </span>
             </span>
           </Link>
+
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-8">
             {['Home', 'Resources', 'Instructions', 'Contact'].map((link) => (
-              
+              <a
                 key={link}
                 href={getPath(link)}
                 className="relative text-gray-600 font-medium transition-colors duration-300 hover:text-red-600 group"
@@ -38,14 +42,9 @@ export default function Navbar() {
                 <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full"></span>
               </a>
             ))}
-            
-            
-              href="/#login"
-              className="relative overflow-hidden bg-red-600 text-white px-7 py-2.5 rounded-full font-medium transition-all duration-300 hover:bg-red-700 hover:shadow-[0_8px_20px_-6px_rgba(220,38,38,0.5)] active:scale-95"
-            >
-              Login
-            </a>
+            {/* Login button removed from here. */}
           </div>
+
           {/* Mobile Menu Button */}
           <button
             className="md:hidden p-2 rounded-xl hover:bg-gray-100 transition-all active:scale-90"
@@ -54,6 +53,7 @@ export default function Navbar() {
             {isMenuOpen ? <XCircle className="w-6 h-6 text-red-600" /> : <List className="w-6 h-6 text-red-600" />}
           </button>
         </div>
+
         {/* Mobile Menu with animation */}
         <AnimatePresence>
           {isMenuOpen && (
@@ -65,7 +65,7 @@ export default function Navbar() {
               exit="exit"
             >
               {['Home', 'Resources', 'Instructions', 'Contact'].map((link) => (
-                
+                <a
                   key={link}
                   href={getPath(link)}
                   className="text-lg text-gray-700 font-medium hover:text-red-600 px-2 transition-all"
@@ -74,17 +74,11 @@ export default function Navbar() {
                   {link}
                 </a>
               ))}
-              
-                href="/#login"
-                className="bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700 text-center font-bold shadow-lg shadow-red-200"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Login
-              </a>
+              {/* Login button removed */}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
     </nav>
   );
-} 
+}
