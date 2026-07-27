@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
-// Simple, gentle animation — nothing flashy
+
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 }
@@ -21,7 +21,7 @@ const staggerContainer = {
 };
 
 export default function BloodDonationGuide() {
-  // Full compatibility table — matches the project documentation (Table 1.21)
+  // Full compatibility table 
   const compatibilityData = [
     { type: 'O−', note: 'Universal Donor', give: 'Everyone', receive: 'O−' },
     { type: 'O+', note: 'Common Donor', give: 'O+, A+, B+, AB+', receive: 'O+, O−' },
@@ -37,7 +37,7 @@ export default function BloodDonationGuide() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      {/* Simple header — informative, not "salesy" */}
+      {/*  header — informative */}
       <section className="bg-white border-b border-gray-100 py-14">
         <div className="container mx-auto px-4 max-w-3xl text-center">
           <div className="inline-flex items-center gap-2 bg-red-50 border border-red-200 rounded-full px-4 py-1.5 mb-5">
@@ -154,7 +154,7 @@ export default function BloodDonationGuide() {
           </div>
         </motion.section>
 
-        {/* Simple, calm closing note — no hard sell */}
+        {/*  closing note */}
         <motion.div
           className="bg-red-50 border border-red-100 rounded-2xl p-8 text-center"
           initial="hidden"
@@ -169,7 +169,7 @@ export default function BloodDonationGuide() {
             and be notified when someone nearby needs your blood type.
           </p>
           <Link
-            to="/donor-dashboard"
+           href="/#login"
             className="bg-red-600 text-white px-7 py-3 rounded-full font-semibold hover:bg-red-700 transition-all inline-block text-sm"
           >
             Register as a Donor
