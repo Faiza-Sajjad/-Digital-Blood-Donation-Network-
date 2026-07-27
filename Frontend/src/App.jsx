@@ -7,7 +7,7 @@ import AdminDashboard from './Pages/AdminDashboard';
 import DonorDashboard from './Pages/DonorDashboard';
 import PrivacyPolicy from './Pages/PrivacyPolicy';
 import VideoLoginSection from './components/VideoLoginSection';
-
+import BloodDonationGuide from './Pages/BloodDonationGuide';
 function App() {
   return (
     <>
@@ -27,6 +27,7 @@ function App() {
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/donor-dashboard" element={<DonorDashboard />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/blood-donation-guide" element={<BloodDonationGuide />} />
       </Routes>
     </>
   );
