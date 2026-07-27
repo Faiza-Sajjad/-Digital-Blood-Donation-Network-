@@ -19,7 +19,7 @@ export default function VideoLoginSection() {
     try {
       // Signup mein OTP verify karna hai — /register route pe otp bhi jayega
       const endpoint = formData.isSignUp ? "/api/auth/register" : "/api/auth/login";
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         // CHANGED: role ab sirf formData se aayega (jo user ne modal ke andar select kiya),
