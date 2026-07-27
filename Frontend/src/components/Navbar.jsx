@@ -12,8 +12,9 @@ export default function Navbar() {
   };
 
   // Helper function to handle correct path
+  // NOTE: "Guide" (renamed from "Resources") still routes to /blood-donation-guide — only the label changed.
   const getPath = (link) => {
-    if (link === 'Resources') return '/blood-donation-guide';
+    if (link === 'Guide') return '/blood-donation-guide';
     if (link === 'Home') return '/#home'; // Root slash
     return `/#${link.toLowerCase()}`; // Root slash
   };
@@ -30,9 +31,9 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop Menu — gap reduced from 8 to 6 so "Contact" doesn't get pushed off screen */}
+          {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-6 flex-shrink-0">
-            {['Home', 'Resources', 'Instructions', 'Contact'].map((link) => (
+            {['Home', 'Guide', 'Instructions', 'Contact'].map((link) => (
               <a
                 key={link}
                 href={getPath(link)}
@@ -63,7 +64,7 @@ export default function Navbar() {
               animate="visible"
               exit="exit"
             >
-              {['Home', 'Resources', 'Instructions', 'Contact'].map((link) => (
+              {['Home', 'Guide', 'Instructions', 'Contact'].map((link) => (
                 <a
                   key={link}
                   href={getPath(link)}
