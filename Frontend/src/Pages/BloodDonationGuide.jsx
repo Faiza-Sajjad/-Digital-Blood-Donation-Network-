@@ -168,12 +168,12 @@ export default function BloodDonationGuide() {
             If you meet the requirements above, you can register as a donor
             and be notified when someone nearby needs your blood type.
           </p>
-          <Link
+          <a
            href="/#login"
             className="bg-red-600 text-white px-7 py-3 rounded-full font-semibold hover:bg-red-700 transition-all inline-block text-sm"
           >
             Register as a Donor
-          </Link>
+          </a>
         </motion.div>
 
         {/* Quiet disclaimer */}
