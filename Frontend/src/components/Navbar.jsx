@@ -12,7 +12,6 @@ export default function Navbar() {
   };
 
   // Helper function to handle correct path
-  // NOTE: "Guide" (renamed from "Resources") still routes to /blood-donation-guide — only the label changed.
   const getPath = (link) => {
     if (link === 'Guide') return '/blood-donation-guide';
     if (link === 'Home') return '/#home'; // Root slash
@@ -21,17 +20,18 @@ export default function Navbar() {
 
   return (
     <nav className="bg-gradient-to-r from-white via-red-50/40 to-white backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-red-100">
-      <div className="container mx-auto px-6 py-4">
+      <div className="container mx-auto px-4 sm:px-6 py-4">
         <div className="flex items-center justify-between gap-4">
-          {/* Logo — flex-shrink-0 so it never squishes and pushes links off screen */}
-          <Link to="/" className="flex items-center gap-2 group cursor-pointer flex-shrink-0">
-            <Activity className="w-8 h-8 text-red-600 transition-transform duration-500 group-hover:rotate-360 flex-shrink-0" />
-            <span className="text-2xl text-gray-900 font-semibold tracking-tight whitespace-nowrap">
-              Digital Blood Donation <span className="text-red-600">Network </span>
+          {/* Logo — min-w-0 + truncate lets it shrink on mobile instead of pushing
+              the hamburger button off-screen. flex-1 gives it room to shrink first. */}
+          <Link to="/" className="flex items-center gap-2 group cursor-pointer flex-1 min-w-0">
+            <Activity className="w-7 h-7 sm:w-8 sm:h-8 text-red-600 transition-transform duration-500 group-hover:rotate-360 flex-shrink-0" />
+            <span className="text-base sm:text-xl md:text-2xl text-gray-900 font-semibold tracking-tight truncate">
+              Digital Blood Donation <span className="text-red-600">Network</span>
             </span>
           </Link>
 
-          {/* Desktop Menu */}
+          {/* Desktop Menu — flex-shrink-0 so it never gets squeezed */}
           <div className="hidden md:flex items-center gap-6 flex-shrink-0">
             {['Home', 'Guide', 'Instructions', 'Contact'].map((link) => (
               <a
@@ -45,7 +45,7 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button — flex-shrink-0 so it always stays visible on screen */}
           <button
             className="md:hidden p-2 rounded-xl hover:bg-red-50 transition-all active:scale-90 flex-shrink-0"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
