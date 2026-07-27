@@ -17,8 +17,12 @@
       "dest": "Backend/server.js"
     },
     {
-      "src": "/(.*)",
+      "src": "/(.*\\.\\w+)$",
       "dest": "Frontend/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "Frontend/index.html"
     }
   ]
 }
