@@ -20,23 +20,23 @@ export default function Navbar() {
 
   return (
     <nav className="bg-gradient-to-r from-white via-red-50/40 to-white backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-red-100">
-      <div className="container mx-auto px-4 py-4">
-        <div className="grid grid-cols-3 items-center">
-          {/* Logo — left column */}
-          <Link to="/" className="flex items-center gap-2 group cursor-pointer justify-self-start">
-            <Activity className="w-8 h-8 text-red-600 transition-transform duration-500 group-hover:rotate-360" />
-            <span className="text-2xl text-gray-900 font-semibold tracking-tight">
+      <div className="container mx-auto px-6 py-4">
+        <div className="flex items-center justify-between gap-4">
+          {/* Logo — flex-shrink-0 so it never squishes and pushes links off screen */}
+          <Link to="/" className="flex items-center gap-2 group cursor-pointer flex-shrink-0">
+            <Activity className="w-8 h-8 text-red-600 transition-transform duration-500 group-hover:rotate-360 flex-shrink-0" />
+            <span className="text-2xl text-gray-900 font-semibold tracking-tight whitespace-nowrap">
               Digital Blood Donation <span className="text-red-600">Network </span>
             </span>
           </Link>
 
-          {/* Desktop Menu — center column */}
-          <div className="hidden md:flex items-center justify-center gap-10 justify-self-center">
+          {/* Desktop Menu — gap reduced from 8 to 6 so "Contact" doesn't get pushed off screen */}
+          <div className="hidden md:flex items-center gap-6 flex-shrink-0">
             {['Home', 'Resources', 'Instructions', 'Contact'].map((link) => (
               <a
                 key={link}
                 href={getPath(link)}
-                className="relative text-gray-600 font-medium transition-colors duration-300 hover:text-red-700 group"
+                className="relative text-gray-600 font-medium transition-colors duration-300 hover:text-red-700 group whitespace-nowrap"
               >
                 {link}
                 <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full"></span>
@@ -44,12 +44,9 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Empty right column — keeps the center links visually centered */}
-          <div className="hidden md:block justify-self-end" />
-
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden justify-self-end p-2 rounded-xl hover:bg-red-50 transition-all active:scale-90"
+            className="md:hidden p-2 rounded-xl hover:bg-red-50 transition-all active:scale-90 flex-shrink-0"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <XCircle className="w-6 h-6 text-red-600" /> : <List className="w-6 h-6 text-red-600" />}
@@ -60,7 +57,7 @@ export default function Navbar() {
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
-              className="md:hidden mt-4 pb-6 flex flex-col items-center gap-5"
+              className="md:hidden mt-4 pb-6 flex flex-col gap-5"
               variants={menuVariants}
               initial="hidden"
               animate="visible"
