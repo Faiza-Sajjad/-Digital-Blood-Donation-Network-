@@ -38,7 +38,7 @@ export default function DonorDashboard() {
     const token = localStorage.getItem("token");
     if (!token) { navigate('/'); return; }
     try {
-      const profileRes = await fetch("/api/donor/me", { headers: { 'Authorization': `Bearer ${token}` } });
+      const profileRes = await fetch("https://digital-blood-donation-network.onrender.com/api/donor/me", { headers: { 'Authorization': `Bearer ${token}` } });
       const profileData = await profileRes.json();
       if (profileData.success) {
         const u = profileData.user;
@@ -47,7 +47,7 @@ export default function DonorDashboard() {
         const dobForInput = u.dateOfBirth ? new Date(u.dateOfBirth).toISOString().split('T')[0] : '';
         setEditData({ name: u.name, phone: u.phone || '', city: u.city || '', bloodGroup: u.bloodGroup || '', dateOfBirth: dobForInput });
       }
-      const reqRes = await fetch("http://localhost:5000/api/requests/all");
+      const reqRes = await fetch("https://digital-blood-donation-network.onrender.com/api/requests/all");
       const reqData = await reqRes.json();
       if (reqData.success) setRequests(reqData.requests);
     } catch { toast.error("Error loading data"); }
@@ -61,9 +61,9 @@ export default function DonorDashboard() {
     // userId — donorInfo se milega ya localStorage se
     const userId = localStorage.getItem("userId") || localStorage.getItem("token") ? null : null;
 
-    const socket = io("http://localhost:5000");
+    const socket = io("https://digital-blood-donation-network.onrender.com");
 
-    // fetchData ke baad id milegi — tab register karein
+    // fetchData ke baad id milegi — 
     const registerSocket = () => {
       const uid = localStorage.getItem("userId");
       if (uid) {
@@ -126,7 +126,7 @@ export default function DonorDashboard() {
 
   const handleUpdateProfile = async () => {
     try {
-      const res = await fetch(`/api/auth/update-profile/${donorInfo.id}`, {
+      const res = await fetch(`https://digital-blood-donation-network.onrender.com/api/auth/update-profile/${donorInfo.id}`, {
         method: "PUT", headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editData),
       });
@@ -160,7 +160,7 @@ export default function DonorDashboard() {
     };
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/requests/create", {
+      const res = await fetch("https://digital-blood-donation-network.onrender.com/api/requests/create", {
         method: "POST", headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${token}` }, body: JSON.stringify(payload),
       });
       const data = await res.json();
