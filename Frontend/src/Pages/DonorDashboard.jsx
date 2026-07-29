@@ -12,7 +12,7 @@ const urgencyConfig = {
   Low: { bg: '#f0fdf4', text: '#16a34a', dot: '#16a34a', label: 'Routine' },
 };
 
-// Date format karne ka function — "2000-02-11T00:00:00.000Z" → "Feb 11, 2000"
+// Date format function — "2000-02-11T00:00:00.000Z" → "Feb 11, 2000"
 const formatDate = (dateStr) => {
   if (!dateStr || dateStr === '—') return '—';
   try {
@@ -38,7 +38,7 @@ export default function DonorDashboard() {
     const token = localStorage.getItem("token");
     if (!token) { navigate('/'); return; }
     try {
-      const profileRes = await fetch("http://localhost:5000/api/donor/me", { headers: { 'Authorization': `Bearer ${token}` } });
+      const profileRes = await fetch("/api/donor/me", { headers: { 'Authorization': `Bearer ${token}` } });
       const profileData = await profileRes.json();
       if (profileData.success) {
         const u = profileData.user;
@@ -95,7 +95,7 @@ export default function DonorDashboard() {
     return () => socket.disconnect();
   }, []);
 
-  // GPS se location detect karna
+  // GPS location detect 
   const detectMyLocation = () => {
     if (!navigator.geolocation) { toast.error('GPS support nahi hai'); return; }
     setGpsLoading(true);
@@ -126,7 +126,7 @@ export default function DonorDashboard() {
 
   const handleUpdateProfile = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/auth/update-profile/${donorInfo.id}`, {
+      const res = await fetch(`/api/auth/update-profile/${donorInfo.id}`, {
         method: "PUT", headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editData),
       });
@@ -144,7 +144,7 @@ export default function DonorDashboard() {
     }
   };
 
-  // FIX: missing fields add kiye — patientName, phone, hospital
+  // fields
   const handleDonationRequest = async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
@@ -155,7 +155,7 @@ export default function DonorDashboard() {
       urgency: fd.get('urgency'),
       phone: fd.get('phone'),
       hospital: fd.get('hospital'),
-      city: fd.get('hospital'), // Request model mein city required hai
+      city: fd.get('hospital'), // Request model mein city required 
       additionalNotes: fd.get('notes'),
     };
     try {
