@@ -23,20 +23,20 @@ const io = new Server(server, {
     cors: { origin: "*", methods: ["GET", "POST"] }
 });
 
-// Online users track karna — { userId: socketId }
+// Online users track — { userId: socketId }
 const onlineUsers = new Map();
 
 io.on("connection", (socket) => {
     console.log("✅ Socket connected:", socket.id);
 
-    // User apna ID register kare
+    // User ID register
     socket.on("register", (userId) => {
         onlineUsers.set(userId, socket.id);
         console.log(`User ${userId} registered with socket ${socket.id}`);
     });
 
     socket.on("disconnect", () => {
-        // Disconnect hone pe remove karo
+        // Disconnect -> remove
         for (const [userId, socketId] of onlineUsers.entries()) {
             if (socketId === socket.id) {
                 onlineUsers.delete(userId);
@@ -47,7 +47,7 @@ io.on("connection", (socket) => {
     });
 });
 
-// Global io access ke liye
+// Global io access
 app.set("io", io);
 app.set("onlineUsers", onlineUsers);
 
@@ -74,7 +74,7 @@ app.get("/api/donor/search", async (req, res) => {
 
         const donors = await User.find(query).select("-password").sort({ createdAt: -1 });
 
-        // Distance calculate karo agar seeker ki coordinates hain
+        // Distance calculate  seeker coordinates 
         let donorsWithDistance = donors.map(donor => {
             const d = donor.toObject();
             if (lat && lng && donor.location?.lat && donor.location?.lng) {
@@ -88,7 +88,7 @@ app.get("/api/donor/search", async (req, res) => {
             return d;
         });
 
-        // Distance ke hisaab se sort karo
+        // Distance sort 
         if (lat && lng) {
             donorsWithDistance.sort((a, b) => {
                 if (a.distance === null) return 1;
@@ -103,7 +103,7 @@ app.get("/api/donor/search", async (req, res) => {
     }
 });
 
-// Haversine formula — 2 coordinates ke beech km mein distance
+// Haversine formula — 2 coordinates-> km distance
 function haversineDistance(lat1, lng1, lat2, lng2) {
     const R = 6371; // Earth radius km
     const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -120,13 +120,13 @@ function haversineDistance(lat1, lng1, lat2, lng2) {
 const donorRoutes = require("./routes/donorRoutes");
 app.use("/api/donor", donorRoutes);
 
-// ─── UPDATE PROFILE (lat/lng bhi save karo) ──────────────────────────────────
+// ─── UPDATE PROFILE (lat/lng bhi) ──────────────────────────────────
 app.put("/api/auth/update-profile/:id", async (req, res) => {
     try {
         const { name, phone, city, bloodGroup, dateOfBirth, lat, lng } = req.body;
         const updateData = { name, phone, city, bloodGroup, dateOfBirth };
 
-        // Coordinates save karo agar diye hain
+        // Coordinates save 
         if (lat && lng) {
             updateData.location = { lat: parseFloat(lat), lng: parseFloat(lng) };
         }
@@ -221,6 +221,10 @@ app.delete("/api/admin/:collection/:id", async (req, res) => {
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-    console.log(`✅ Server running on port ${PORT}`);
-});
+if (!process.env.VERCEL) {
+    server.listen(PORT, () => {
+        console.log(`✅ Server running on port ${PORT}`);
+    });
+}
+
+module.exports = app;
