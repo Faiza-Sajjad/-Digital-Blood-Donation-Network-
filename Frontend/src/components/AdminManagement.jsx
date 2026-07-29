@@ -14,7 +14,7 @@ export default function AdminManagement() {
     const fetchAdmins = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:5000/api/auth/all-admins', {
+            const res = await axios.get('/api/auth/all-admins', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.data.success) setAdmins(res.data.data);
