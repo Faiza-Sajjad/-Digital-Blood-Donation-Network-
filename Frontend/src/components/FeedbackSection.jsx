@@ -13,7 +13,7 @@ export default function FeedbackSection() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("/api/feedback", {
+      const response = await fetch("https://digital-blood-donation-network.onrender.com/api/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
