@@ -14,7 +14,7 @@ export default function AdminManagement() {
     const fetchAdmins = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get('/api/auth/all-admins', {
+            const res = await axios.get('https://digital-blood-donation-network.onrender.com/api/auth/all-admins', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.data.success) setAdmins(res.data.data);
@@ -30,7 +30,7 @@ export default function AdminManagement() {
         if (!window.confirm("Are you sure you want to delete this admin?")) return;
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.delete(`http://localhost:5000/api/auth/delete-admin/${adminId}`, {
+            const res = await axios.delete(`https://digital-blood-donation-network.onrender.com/api/auth/delete-admin/${adminId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.data.success) {
@@ -55,7 +55,7 @@ export default function AdminManagement() {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post('http://localhost:5000/api/auth/create-admin',
+            const res = await axios.post('https://digital-blood-donation-network.onrender.com/api/auth/create-admin',
                 { name, email, password }, // Phone removed from payload
                 { headers: { Authorization: `Bearer ${token}` } }
             );
