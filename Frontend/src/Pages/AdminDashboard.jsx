@@ -29,11 +29,11 @@ export default function AdminDashboard() {
       const token = localStorage.getItem('token');
       const headers = { 'Authorization': `Bearer ${token}` };
       const [sRes, dRes, skRes, rRes, fRes] = await Promise.all([
-        fetch("http://localhost:5000/api/admin/stats", { headers }),
-        fetch("http://localhost:5000/api/admin/donors", { headers }),
-        fetch("http://localhost:5000/api/admin/seekers", { headers }),
-        fetch("http://localhost:5000/api/admin/all-requests", { headers }),
-        fetch("http://localhost:5000/api/admin/feedbacks", { headers })
+        fetch("https://digital-blood-donation-network.onrender.com/api/admin/stats", { headers }),
+        fetch("https://digital-blood-donation-network.onrender.com/api/admin/donors", { headers }),
+        fetch("https://digital-blood-donation-network.onrender.com/api/admin/seekers", { headers }),
+        fetch("https://digital-blood-donation-network.onrender.com/api/admin/all-requests", { headers }),
+        fetch("https://digital-blood-donation-network.onrender.com/api/admin/feedbacks", { headers })
       ]);
       const sData = await sRes.json();
       const dData = await dRes.json();
@@ -56,7 +56,7 @@ export default function AdminDashboard() {
 
   // ── Socket.IO notifications ──
   useEffect(() => {
-    const socket = io("http://localhost:5000");
+    const socket = io("https://digital-blood-donation-network.onrender.com");
     socket.on("connect", () => {
       const userId = localStorage.getItem("userId");
       if (userId) socket.emit("register", userId);
@@ -76,7 +76,7 @@ export default function AdminDashboard() {
     if (window.confirm("Are you sure you want to delete this record?")) {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`http://localhost:5000/api/admin/${collection}/${id}`, {
+        const res = await fetch(`https://digital-blood-donation-network.onrender.com/api/admin/${collection}/${id}`, {
           method: "DELETE",
           headers: { 'Authorization': `Bearer ${token}` }
         });
