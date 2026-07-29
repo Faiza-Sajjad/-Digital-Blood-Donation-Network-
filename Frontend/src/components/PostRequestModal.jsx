@@ -17,7 +17,7 @@ export default function PostRequestModal({ onClose }) {
         e.preventDefault();
         const token = localStorage.getItem("token");
         try {
-            const res = await fetch("http://localhost:5000/api/requests/create", {
+            const res = await fetch("/api/requests/create", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -109,7 +109,7 @@ export default function PostRequestModal({ onClose }) {
                         </div>
                     </div>
 
-                    {/* Units + Urgency — naye fields same design mein */}
+                    {/* Units + Urgency —  fields */}
                     <div className="grid grid-cols-2 gap-8">
                         <div>
                             <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Units Required</label>
@@ -141,7 +141,7 @@ export default function PostRequestModal({ onClose }) {
                     {/* High urgency warning */}
                     {formData.urgency === 'High' && (
                         <div className="bg-red-50 border border-red-200 rounded-2xl px-4 py-3 text-sm text-red-600 font-semibold">
-                            🚨 High urgency — matching donors aur admins ko turant notification jayegi!
+                            🚨 High urgency — matching donors and admins will be notified immediately!
                         </div>
                     )}
 
