@@ -17,7 +17,7 @@ export default function PostRequestModal({ onClose }) {
         e.preventDefault();
         const token = localStorage.getItem("token");
         try {
-            const res = await fetch("/api/requests/create", {
+            const res = await fetch("https://digital-blood-donation-network.onrender.com/api/requests/create", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
