@@ -25,7 +25,7 @@ export default function BloodSeekerDashboard() {
 
   // GPS detect
   const detectMyLocation = () => {
-    if (!navigator.geolocation) { toast.error('GPS support nahi hai'); return; }
+    if (!navigator.geolocation) { toast.error('GPS support is not available.'); return; }
     setGpsLoading(true);
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
@@ -36,14 +36,14 @@ export default function BloodSeekerDashboard() {
           const data = await res.json();
           const city = data.address?.city || data.address?.town || data.address?.village || '';
           if (city) { setSearchLocation(city); toast.success(`Location: ${city} 📍`); }
-          else toast.error('City detect nahi hui');
+          else toast.error('Unable to detect city');
         } catch { toast.error('Location error'); }
         finally { setGpsLoading(false); }
       },
       (err) => {
         setGpsLoading(false);
-        if (err.code === 1) toast.error('GPS permission allow karein');
-        else toast.error('Location detect nahi hui');
+        if (err.code === 1) toast.error('Allow GPS permission');
+        else toast.error('Location not detected');
       },
       { timeout: 10000 }
     );
@@ -52,7 +52,7 @@ export default function BloodSeekerDashboard() {
   const fetchDonors = async () => {
     setLoading(true);
     try {
-      let url = `http://localhost:5000/api/donor/search?bloodGroup=${encodeURIComponent(searchBloodType)}&city=${encodeURIComponent(searchLocation)}`;
+      let url = `https://digital-blood-donation-network.onrender.com/api/donor/search?bloodGroup=${encodeURIComponent(searchBloodType)}&city=${encodeURIComponent(searchLocation)}`;
       if (seekerCoords.lat && seekerCoords.lng) {
         url += `&lat=${seekerCoords.lat}&lng=${seekerCoords.lng}`;
       }
