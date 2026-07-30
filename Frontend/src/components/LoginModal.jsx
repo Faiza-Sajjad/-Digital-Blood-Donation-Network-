@@ -143,7 +143,7 @@ export default function LoginModal({ role: initialRole, onClose, onSubmit }) {
       setOtpLoading(true);
       setOtpError('');
       try {
-       const res = await fetch("/api/auth/send-otp", {
+       const res = await fetch("https://digital-blood-donation-network.onrender.com/api/auth/send-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, fullName }),
@@ -152,10 +152,10 @@ export default function LoginModal({ role: initialRole, onClose, onSubmit }) {
         if (data.success) {
           setOtpStep(true);
         } else {
-          setOtpError(data.message || "OTP bhejne mein masla hua");
+          setOtpError(data.message || "Failed to send OTP. Please try again.");
         }
       } catch {
-        setOtpError("Server se connection nahi hua");
+        setOtpError("Failed to connect to the server. Please try again.");
       } finally {
         setOtpLoading(false);
       }
@@ -269,11 +269,11 @@ export default function LoginModal({ role: initialRole, onClose, onSubmit }) {
                     <ShieldCheck size={16} /> {otpLoading ? 'Verifying…' : 'Verify & Create Account'}
                   </button>
                   <p style={{ textAlign: 'center', fontSize: 12, color: '#bbb', margin: 0, fontFamily: "'Sora',sans-serif" }}>
-                    OTP nahi mila?{' '}
+                   Didn't receive the OTP?{' '}
                     <button type="button"
                       style={{ background: 'none', border: 'none', color: '#ef4444', fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: "'Sora',sans-serif", textDecoration: 'underline', textUnderlineOffset: 3 }}
                       onClick={() => { setOtpStep(false); setOtp(''); setOtpError(''); }}>
-                      Wapas jao
+                     Go Back
                     </button>
                   </p>
                 </form>
