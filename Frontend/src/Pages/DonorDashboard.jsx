@@ -453,56 +453,56 @@ export default function DonorDashboard() {
             )}
           </div>
         </div>
-      </div>
 
-      {showDonationForm && (
-        <div className="modal-bg" onClick={e => e.target === e.currentTarget && setShowDonationForm(false)}>
-          <div className="modal-box">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-              <div style={{ fontSize: 17, fontWeight: 800, color: '#0f172a' }}>New Request</div>
-              <button onClick={() => setShowDonationForm(false)} style={{ background: '#f1f5f9', border: 'none', borderRadius: 8, padding: 6 }}>
-                <X size={16} color="#64748b" />
-              </button>
+        {showDonationForm && (
+          <div className="modal-bg" onClick={e => e.target === e.currentTarget && setShowDonationForm(false)}>
+            <div className="modal-box">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <div style={{ fontSize: 17, fontWeight: 800, color: '#0f172a' }}>New Request</div>
+                <button onClick={() => setShowDonationForm(false)} style={{ background: '#f1f5f9', border: 'none', borderRadius: 8, padding: 6 }}>
+                  <X size={16} color="#64748b" />
+                </button>
+              </div>
+
+              <form onSubmit={handleDonationRequest} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <input type="text" name="patientName" required className="input-style" placeholder="Patient Name" />
+                
+                <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <select name="bloodGroup" className="input-style">
+                    {BLOOD_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
+                  </select>
+                  <input type="text" name="phone" required className="input-style" placeholder="Phone" />
+                </div>
+
+                <input type="text" name="hospital" required className="input-style" placeholder="Hospital Name" />
+
+                <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <input type="number" name="units" min="1" defaultValue="1" required className="input-style" />
+                  <select name="urgency" className="input-style">
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                  </select>
+                </div>
+
+                <textarea name="notes" className="input-style" rows={3} placeholder="Notes" />
+
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button type="button" className="btn-ghost" style={{ flex: 1 }} onClick={() => setShowDonationForm(false)}>Cancel</button>
+                  <button type="submit" className="btn-primary" style={{ flex: 1 }}>Submit</button>
+                </div>
+              </form>
             </div>
-
-            <form onSubmit={handleDonationRequest} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <input type="text" name="patientName" required className="input-style" placeholder="Patient Name" />
-              
-              <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                <select name="bloodGroup" className="input-style">
-                  {BLOOD_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
-                </select>
-                <input type="text" name="phone" required className="input-style" placeholder="Phone" />
-              </div>
-
-              <input type="text" name="hospital" required className="input-style" placeholder="Hospital Name" />
-
-              <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                <input type="number" name="units" min="1" defaultValue="1" required className="input-style" />
-                <select name="urgency" className="input-style">
-                  <option value="High">High</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Low">Low</option>
-                </select>
-              </div>
-
-              <textarea name="notes" className="input-style" rows={3} placeholder="Notes" />
-
-              <div style={{ display: 'flex', gap: 10 }}>
-                <button type="button" className="btn-ghost" style={{ flex: 1 }} onClick={() => setShowDonationForm(false)}>Cancel</button>
-                <button type="submit" className="btn-primary" style={{ flex: 1 }}>Submit</button>
-              </div>
-            </form>
           </div>
-        </div>
-      )}
+        )}
 
-      {showNotifPanel && (
-        <div style={{ position: 'fixed', top: 70, right: 20, width: 320, background: '#ffffff', borderRadius: 14, boxShadow: '0 10px 30px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0', zIndex: 100, padding: 16 }}>
-          <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>Notifications</div>
-          {notifications.length === 0 ? <div style={{ fontSize: 12, color: '#94a3b8' }}>No alerts</div> : notifications.map((n, i) => <div key={i} style={{ fontSize: 12 }}>{n.message}</div>)}
-        </div>
-      )}
+        {showNotifPanel && (
+          <div style={{ position: 'fixed', top: 70, right: 20, width: 320, background: '#ffffff', borderRadius: 14, boxShadow: '0 10px 30px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0', zIndex: 100, padding: 16 }}>
+            <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>Notifications</div>
+            {notifications.length === 0 ? <div style={{ fontSize: 12, color: '#94a3b8' }}>No alerts</div> : notifications.map((n, i) => <div key={i} style={{ fontSize: 12 }}>{n.message}</div>)}
+          </div>
+        )}
+      </div>
     </>
   );
 }
