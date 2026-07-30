@@ -173,8 +173,8 @@ export default function DonorDashboard() {
     page: { minHeight: '100vh', background: '#f6f6f6', fontFamily: "'Sora', sans-serif" },
     header: { background: '#fff', borderBottom: '1px solid #efefef', padding: '0 28px', height: 62, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 },
     logo: { display: 'flex', alignItems: 'center', gap: 10 },
-    logoIcon: { width: 36, height: 36, background: 'linear-gradient(135deg,#ef4444,#b91c1c)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' },
-    logoText: { fontSize: 16, fontWeight: 800, color: '#111' },
+    logoIcon: { width: 32, height: 32, background: '#fff5f5', border: '1.5px solid #fecaca', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' },
+logoText: { fontSize: 13, fontWeight: 800, color: '#111', letterSpacing: '0.3px' },
     logoSub: { fontSize: 11, color: '#bbb', fontWeight: 500 },
     signOutBtn: { display: 'flex', alignItems: 'center', gap: 7, background: '#f8f8f8', border: '1px solid #ececec', borderRadius: 10, padding: '8px 15px', fontSize: 13, fontWeight: 600, color: '#666', cursor: 'pointer' },
     layout: { maxWidth: 1080, margin: '0 auto', padding: '28px 20px', display: 'grid', gridTemplateColumns: '288px 1fr', gap: 22 },
@@ -217,14 +217,13 @@ export default function DonorDashboard() {
       <div style={S.page}>
 
         {/* ── Header ── */}
-        <header style={S.header}>
-          <div style={S.logo}>
-            <div style={S.logoIcon}><Heart size={17} color="#fff" fill="#fff" /></div>
-            <div>
-              <div style={S.logoText}>BloodNet</div>
-              <div style={S.logoSub}>Donor Portal</div>
-            </div>
-          </div>
+       <div style={S.logo}>
+  <div style={S.logoIcon}><Heart size={16} color="#ef4444" strokeWidth={2.2} /></div>
+  <div>
+    <div style={S.logoText}>DBDN</div>
+    <div style={S.logoSub}>Donor Portal</div>
+  </div>
+</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {/* Notification Bell */}
             <button
