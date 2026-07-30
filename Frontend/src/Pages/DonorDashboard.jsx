@@ -224,7 +224,6 @@ logoText: { fontSize: 13, fontWeight: 800, color: '#111', letterSpacing: '0.3px'
     <div style={S.logoSub}>Donor Portal</div>
   </div>
 </div>
-      </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {/* Notification Bell */}
             <button
