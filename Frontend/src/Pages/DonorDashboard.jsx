@@ -217,6 +217,7 @@ logoText: { fontSize: 13, fontWeight: 800, color: '#111', letterSpacing: '0.3px'
       <div style={S.page}>
 
         {/* ── Header ── */}
+        <header style={S.header}>
        <div style={S.logo}>
   <div style={S.logoIcon}><Heart size={16} color="#ef4444" strokeWidth={2.2} /></div>
   <div>
