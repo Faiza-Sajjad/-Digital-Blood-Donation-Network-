@@ -287,7 +287,6 @@ export default function DonorDashboard() {
           overflow-y: auto;
         }
 
-        /* Responsiveness Rules */
         @media (max-width: 900px) {
           .dashboard-container {
             grid-template-columns: 1fr;
@@ -323,7 +322,7 @@ export default function DonorDashboard() {
 
       <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
         
-        {/* Navbar */}
+        {/* Header */}
         <header style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', height: 64, position: 'sticky', top: 0, zIndex: 40 }}>
           <div className="header-inner" style={{ maxWidth: 1200, margin: '0 auto', height: '100%', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -365,13 +364,12 @@ export default function DonorDashboard() {
           </div>
         </header>
 
-        {/* Dashboard Content */}
+        {/* Layout */}
         <div className="dashboard-container">
 
           {/* Sidebar */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             
-            {/* User Profile Summary */}
             <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 16, padding: 20, textAlign: 'center' }}>
               <div style={{ position: 'relative', display: 'inline-block', marginBottom: 12 }}>
                 {profileImage ? (
@@ -396,7 +394,6 @@ export default function DonorDashboard() {
               </div>
             </div>
 
-            {/* Profile Info Card */}
             <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 16, padding: 20 }}>
               {isEditing ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -448,10 +445,8 @@ export default function DonorDashboard() {
             </div>
           </div>
 
-          {/* Main Content Area */}
+          {/* Main Area */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            
-            {/* Banner */}
             <div className="banner-box" style={{ background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)', borderRadius: 16, padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
               <div>
                 <div style={{ fontSize: 18, fontWeight: 800, color: '#ffffff', marginBottom: 4 }}>Need Urgent Blood?</div>
@@ -462,7 +457,6 @@ export default function DonorDashboard() {
               </button>
             </div>
 
-            {/* Controls Row */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', gap: 4, background: '#e2e8f0', borderRadius: 10, padding: 3 }}>
                 {[ ['requests', 'Live Requests'], ['history', 'My History'] ].map(([id, label]) => (
@@ -489,7 +483,6 @@ export default function DonorDashboard() {
               <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>{requests.length} Requests Available</span>
             </div>
 
-            {/* Requests Cards Container */}
             {loadingRequests ? (
               <div className="requests-grid">
                 {[1, 2, 3, 4].map(i => (
@@ -553,7 +546,7 @@ export default function DonorDashboard() {
         </div>
       </div>
 
-      {/* Modal Window */}
+      {/* Modal */}
       {showDonationForm && (
         <div className="modal-bg" onClick={e => e.target === e.currentTarget && setShowDonationForm(false)}>
           <div className="modal-box">
