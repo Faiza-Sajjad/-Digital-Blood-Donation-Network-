@@ -135,7 +135,7 @@ app.put("/api/auth/update-profile/:id", async (req, res) => {
             req.params.id, updateData, { new: true }
         ).select("-password");
 
-        if (!updatedUser) return res.status(404).json({ success: false, message: "User nahi mila" });
+        if (!updatedUser) return res.status(404).json({ success: false, message: "User not found" });
         res.json({ success: true, message: "Profile update ho gaya!", data: updatedUser });
     } catch (error) {
         res.status(500).json({ success: false, message: "Profile update failed" });
@@ -147,13 +147,13 @@ app.post("/api/feedback", async (req, res) => {
     try {
         const { name, email, message } = req.body;
         if (!name || !email || !message) {
-            return res.status(400).json({ success: false, message: "Saare fields required hain" });
+            return res.status(400).json({ success: false, message: "All fields are required." });
         }
         const newFeedback = new Feedback({ name, email, message });
         await newFeedback.save();
-        res.json({ success: true, message: "Feedback receive ho gaya. Shukriya!" });
+        res.json({ success: true, message: "Thank you for your feedback!" });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Feedback save nahi hua" });
+        res.status(500).json({ success: false, message: "Failed to save feedback. Please try again." });
     }
 });
 
@@ -213,7 +213,7 @@ app.delete("/api/admin/:collection/:id", async (req, res) => {
         };
         if (!modelMap[collection]) return res.status(400).json({ success: false, message: "Invalid collection" });
         await modelMap[collection]();
-        res.json({ success: true, message: "Record delete ho gaya" });
+        res.json({ success: true, message: "Record deleted" });
     } catch (error) {
         res.status(500).json({ success: false, message: "Delete failed" });
     }
