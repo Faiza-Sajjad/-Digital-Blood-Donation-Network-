@@ -18,7 +18,9 @@ export default function VideoLoginSection() {
   const handleLoginSubmit = async (formData) => {
     try {
       // Signup mein OTP verify karna hai — /register route pe otp bhi jayega
-      const endpoint = formData.isSignUp ? "/api/auth/register" : "/api/auth/login";
+      const endpoint = formData.isSignUp 
+  ? "https://digital-blood-donation-network.onrender.com/api/auth/register" 
+  : "https://digital-blood-donation-network.onrender.com/api/auth/login";
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -43,7 +45,7 @@ export default function VideoLoginSection() {
       }
     } catch (error) {
       console.error("Auth Error:", error);
-      toast.error("Backend server nahi chal raha!");
+      toast.error("Server is currently unreachable. Please try again later.");
     }
   };
 
