@@ -1,18 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, User, Edit2, LogOut, Bell, MapPin, Phone, Upload, FileText, X, Calendar, Droplet, CheckCircle, ChevronRight, Navigation } from 'lucide-react';
+import { 
+  Heart, User, Edit2, LogOut, Bell, MapPin, Phone, 
+  Upload, FileText, X, Calendar, Droplet, CheckCircle, 
+  ChevronRight, Navigation 
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { io } from 'socket.io-client';
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 const urgencyConfig = {
-  High: { bg: '#fff1f1', text: '#e53e3e', dot: '#e53e3e', label: 'Critical' },
-  Medium: { bg: '#fffbeb', text: '#d97706', dot: '#d97706', label: 'Moderate' },
-  Low: { bg: '#f0fdf4', text: '#16a34a', dot: '#16a34a', label: 'Routine' },
+  High: { bg: '#fef2f2', text: '#dc2626', border: '#fecaca', label: 'Critical' },
+  Medium: { bg: '#fffbe8', text: '#d97706', border: '#fef3c7', label: 'Moderate' },
+  Low: { bg: '#f0fdf4', text: '#16a34a', border: '#bbf7d0', label: 'Routine' },
 };
 
-// Date format function — "2000-02-11T00:00:00.000Z" → "Feb 11, 2000"
 const formatDate = (dateStr) => {
   if (!dateStr || dateStr === '—') return '—';
   try {
@@ -43,37 +46,30 @@ export default function DonorDashboard() {
       if (profileData.success) {
         const u = profileData.user;
         setDonorInfo({ id: u._id, fullName: u.name, email: u.email, phone: u.phone || '—', bloodType: u.bloodGroup || '?', address: u.city || '—', dateOfBirth: u.dateOfBirth || '—' });
-        // Edit form ke liye date ko YYYY-MM-DD format mein rakhna zaroori hai
         const dobForInput = u.dateOfBirth ? new Date(u.dateOfBirth).toISOString().split('T')[0] : '';
         setEditData({ name: u.name, phone: u.phone || '', city: u.city || '', bloodGroup: u.bloodGroup || '', dateOfBirth: dobForInput });
       }
       const reqRes = await fetch("https://digital-blood-donation-network.onrender.com/api/requests/all");
       const reqData = await reqRes.json();
       if (reqData.success) setRequests(reqData.requests);
-    } catch { toast.error("Error loading data"); }
-    finally { setLoadingRequests(false); }
+    } catch { 
+      toast.error("Error loading data"); 
+    } finally { 
+      setLoadingRequests(false); 
+    }
   };
 
   useEffect(() => { fetchData(); }, []);
 
-  // Socket.IO — real-time notifications
   useEffect(() => {
-    // userId — donorInfo se milega ya localStorage se
-    const userId = localStorage.getItem("userId") || localStorage.getItem("token") ? null : null;
-
     const socket = io("https://digital-blood-donation-network.onrender.com");
 
-    // fetchData ke baad id milegi — 
     const registerSocket = () => {
       const uid = localStorage.getItem("userId");
-      if (uid) {
-        socket.emit("register", uid);
-        console.log("Socket registered with userId:", uid);
-      }
+      if (uid) socket.emit("register", uid);
     };
 
     socket.on("connect", registerSocket);
-
     socket.on("urgent_notification", (notif) => {
       setNotifications(prev => [notif, ...prev]);
       toast.error(notif.message, {
@@ -95,9 +91,8 @@ export default function DonorDashboard() {
     return () => socket.disconnect();
   }, []);
 
-  // GPS location detect 
   const detectMyLocation = () => {
-    if (!navigator.geolocation) { toast.error('GPS support nahi hai'); return; }
+    if (!navigator.geolocation) { toast.error('GPS support missing'); return; }
     setGpsLoading(true);
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
@@ -108,17 +103,17 @@ export default function DonorDashboard() {
           const city = data.address?.city || data.address?.town || data.address?.village || '';
           if (city) {
             setEditData(prev => ({ ...prev, city, lat: latitude, lng: longitude }));
-            toast.success(`Location detect ho gayi: ${city} 📍`);
+            toast.success(`Location detected: ${city} 📍`);
           } else {
-            toast.error('City detect nahi hui, manually likhein');
+            toast.error('City not detected, enter manually');
           }
         } catch { toast.error('Location service error'); }
         finally { setGpsLoading(false); }
       },
       (err) => {
         setGpsLoading(false);
-        if (err.code === 1) toast.error('GPS permission allow karein');
-        else toast.error('Location detect nahi hui');
+        if (err.code === 1) toast.error('Allow GPS permission');
+        else toast.error('Location detection failed');
       },
       { timeout: 10000 }
     );
@@ -127,7 +122,8 @@ export default function DonorDashboard() {
   const handleUpdateProfile = async () => {
     try {
       const res = await fetch(`https://digital-blood-donation-network.onrender.com/api/auth/update-profile/${donorInfo.id}`, {
-        method: "PUT", headers: { "Content-Type": "application/json" },
+        method: "PUT", 
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editData),
       });
       const data = await res.json();
@@ -144,7 +140,6 @@ export default function DonorDashboard() {
     }
   };
 
-  // fields
   const handleDonationRequest = async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
@@ -155,13 +150,15 @@ export default function DonorDashboard() {
       urgency: fd.get('urgency'),
       phone: fd.get('phone'),
       hospital: fd.get('hospital'),
-      city: fd.get('hospital'), // Request model mein city required 
+      city: fd.get('hospital'),
       additionalNotes: fd.get('notes'),
     };
     try {
       const token = localStorage.getItem("token");
       const res = await fetch("https://digital-blood-donation-network.onrender.com/api/requests/create", {
-        method: "POST", headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${token}` }, body: JSON.stringify(payload),
+        method: "POST", 
+        headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${token}` }, 
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (data.success) { toast.success('Request submitted!'); setShowDonationForm(false); fetchData(); }
@@ -169,243 +166,383 @@ export default function DonorDashboard() {
     } catch { toast.error("Request failed"); }
   };
 
-  const S = {
-    page: { minHeight: '100vh', background: '#f6f6f6', fontFamily: "'Sora', sans-serif" },
-    header: { background: '#fff', borderBottom: '1px solid #efefef', padding: '0 28px', height: 62, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 },
-    logo: { display: 'flex', alignItems: 'center', gap: 10 },
-    logoIcon: { width: 32, height: 32, background: '#fff5f5', border: '1.5px solid #fecaca', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' },
-logoText: { fontSize: 13, fontWeight: 800, color: '#111', letterSpacing: '0.3px' },
-    logoSub: { fontSize: 11, color: '#bbb', fontWeight: 500 },
-    signOutBtn: { display: 'flex', alignItems: 'center', gap: 7, background: '#f8f8f8', border: '1px solid #ececec', borderRadius: 10, padding: '8px 15px', fontSize: 13, fontWeight: 600, color: '#666', cursor: 'pointer' },
-    layout: { maxWidth: 1080, margin: '0 auto', padding: '28px 20px', display: 'grid', gridTemplateColumns: '288px 1fr', gap: 22 },
-    card: { background: '#fff', border: '1px solid #efefef', borderRadius: 18 },
-    sectionLabel: { fontSize: 10, fontWeight: 700, color: '#bbb', textTransform: 'uppercase', letterSpacing: '0.8px', display: 'block', marginBottom: 6 },
-    infoRow: { display: 'flex', alignItems: 'center', gap: 12, padding: '13px 0', borderBottom: '1px solid #f5f5f5' },
-    infoIcon: { width: 30, height: 30, background: '#fff5f5', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-    infoLabel: { fontSize: 10, color: '#c0c0c0', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' },
-    infoValue: { fontSize: 13, fontWeight: 600, color: '#222', marginTop: 1 },
-    inputField: { width: '100%', border: '1.5px solid #efefef', borderRadius: 11, padding: '10px 13px', fontSize: 13, outline: 'none', background: '#fafafa', fontFamily: "'Sora', sans-serif", boxSizing: 'border-box', transition: 'border-color 0.2s' },
-    btnPrimary: { width: '100%', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 11, padding: '11px 18px', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: "'Sora', sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 },
-    btnGhost: { width: '100%', background: '#f5f5f5', color: '#555', border: 'none', borderRadius: 11, padding: '11px 18px', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: "'Sora', sans-serif" },
-  };
-
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
-        * { box-sizing: border-box; }
-        .input-focus:focus { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.1); background: #fff !important; }
-        .req-card { background: #fff; border: 1.5px solid #f0f0f0; border-radius: 16px; padding: 18px; transition: all 0.18s; }
-        .req-card:hover { border-color: #fca5a5; box-shadow: 0 6px 24px rgba(239,68,68,0.08); transform: translateY(-2px); }
-        .respond-btn { width: 100%; background: #fff5f5; color: #ef4444; border: 1.5px solid #fecaca; border-radius: 10px; padding: 9px 14px; font-weight: 700; font-size: 12px; cursor: pointer; font-family: 'Sora',sans-serif; display:flex; align-items:center; justify-content:center; gap:5px; transition: all 0.18s; }
-        .respond-btn:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
-        .tab-btn { padding: 7px 16px; border-radius: 9px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.18s; font-family: 'Sora',sans-serif; }
-        .tab-on { background: #ef4444; color: #fff; }
-        .tab-off { background: transparent; color: #aaa; }
-        .tab-off:hover { color: #333; background: #f0f0f0; }
-        .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,0.4); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; padding:20px; z-index:50; animation: fin 0.2s ease; }
-        .modal-box { background:#fff; border-radius:22px; padding:32px; max-width:480px; width:100%; box-shadow:0 24px 80px rgba(0,0,0,0.14); animation: sup 0.22s ease; max-height:90vh; overflow-y:auto; }
-        @keyframes fin { from{opacity:0} to{opacity:1} }
-        @keyframes sup { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
-        .skel { background: linear-gradient(90deg,#f2f2f2 25%,#eaeaea 50%,#f2f2f2 75%); background-size:200% 100%; animation:shim 1.4s infinite; border-radius:8px; }
-        @keyframes shim { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-        select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 13px center; padding-right:34px !important; }
-        textarea { resize:none; }
-        .blood-type { font-family:'JetBrains Mono',monospace; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #0f172a; }
+
+        .dashboard-container {
+          display: grid;
+          grid-template-columns: 300px 1fr;
+          gap: 24px;
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 24px 16px;
+        }
+
+        .requests-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 16px;
+        }
+
+        .input-style {
+          width: 100%;
+          border: 1px solid #e2e8f0;
+          border-radius: 10px;
+          padding: 10px 14px;
+          font-size: 13px;
+          outline: none;
+          background: #ffffff;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-style:focus {
+          border-color: #ef4444;
+          box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        .btn-primary {
+          background: #ef4444;
+          color: #ffffff;
+          border: none;
+          border-radius: 10px;
+          padding: 10px 16px;
+          font-weight: 600;
+          font-size: 13px;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          transition: background 0.2s;
+        }
+        .btn-primary:hover { background: #dc2626; }
+
+        .btn-ghost {
+          background: #f1f5f9;
+          color: #475569;
+          border: none;
+          border-radius: 10px;
+          padding: 10px 16px;
+          font-weight: 600;
+          font-size: 13px;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+        .btn-ghost:hover { background: #e2e8f0; }
+
+        .req-card {
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 14px;
+          padding: 18px;
+          transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+        }
+        .req-card:hover {
+          border-color: #fca5a5;
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+          transform: translateY(-2px);
+        }
+
+        .respond-btn {
+          width: 100%;
+          background: #fef2f2;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+          border-radius: 9px;
+          padding: 9px;
+          font-weight: 600;
+          font-size: 13px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          transition: all 0.2s;
+        }
+        .respond-btn:hover { background: #dc2626; color: #ffffff; border-color: #dc2626; }
+
+        .modal-bg {
+          position: fixed;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.4);
+          backdrop-filter: blur(4px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 16px;
+          z-index: 50;
+        }
+        .modal-box {
+          background: #ffffff;
+          border-radius: 18px;
+          padding: 24px;
+          max-width: 480px;
+          width: 100%;
+          box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+          max-height: 90vh;
+          overflow-y: auto;
+        }
+
+        /* Responsiveness Rules */
+        @media (max-width: 900px) {
+          .dashboard-container {
+            grid-template-columns: 1fr;
+          }
+        }
+        @media (max-width: 640px) {
+          .requests-grid {
+            grid-template-columns: 1fr;
+          }
+          .form-grid-2 {
+            grid-template-columns: 1fr !important;
+          }
+          .header-inner {
+            padding: 0 16px !important;
+          }
+          .banner-box {
+            flex-direction: column;
+            align-items: flex-start !important;
+          }
+          .banner-btn {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+        .skel {
+          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+          background-size: 200% 100%;
+          animation: shim 1.5s infinite;
+          border-radius: 8px;
+        }
+        @keyframes shim { 0%{background-position: 200% 0} 100%{background-position: -200% 0} }
       `}</style>
 
-      <div style={S.page}>
+      <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+        
+        {/* Navbar */}
+        <header style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', height: 64, position: 'sticky', top: 0, zIndex: 40 }}>
+          <div className="header-inner" style={{ maxWidth: 1200, margin: '0 auto', height: '100%', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 34, height: 34, background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Heart size={18} color="#ef4444" strokeWidth={2.5} />
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.2px' }}>DBDN</div>
+                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 500 }}>Donor Hub</div>
+              </div>
+            </div>
 
-        {/* ── Header ── */}
-       <div style={S.logo}>
-  <div style={S.logoIcon}><Heart size={16} color="#ef4444" strokeWidth={2.2} /></div>
-  <div>
-    <div style={S.logoText}>DBDN</div>
-    <div style={S.logoSub}>Donor Portal</div>
-  </div>
-</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {/* Notification Bell */}
-            <button
-              onClick={() => setShowNotifPanel(v => !v)}
-              style={{ position: 'relative', background: notifications.length > 0 ? '#fff1f1' : '#f8f8f8', border: `1px solid ${notifications.length > 0 ? '#fecaca' : '#ececec'}`, borderRadius: 10, padding: '8px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-            >
-              <Bell size={16} color={notifications.length > 0 ? '#ef4444' : '#666'} />
-              {notifications.length > 0 && (
-                <span style={{ position: 'absolute', top: -6, right: -6, background: '#ef4444', color: '#fff', borderRadius: '50%', width: 18, height: 18, fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {notifications.length > 9 ? '9+' : notifications.length}
-                </span>
-              )}
-            </button>
-            <button style={S.signOutBtn} onClick={() => { localStorage.clear(); navigate('/'); }}>
-              <LogOut size={14} /> Sign out
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <button
+                onClick={() => setShowNotifPanel(v => !v)}
+                style={{
+                  position: 'relative',
+                  background: notifications.length > 0 ? '#fef2f2' : '#ffffff',
+                  border: `1px solid ${notifications.length > 0 ? '#fecaca' : '#e2e8f0'}`,
+                  borderRadius: 10,
+                  padding: '8px 12px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                <Bell size={16} color={notifications.length > 0 ? '#dc2626' : '#64748b'} />
+                {notifications.length > 0 && (
+                  <span style={{ position: 'absolute', top: -5, right: -5, background: '#ef4444', color: '#fff', borderRadius: '50%', width: 18, height: 18, fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {notifications.length > 9 ? '9+' : notifications.length}
+                  </span>
+                )}
+              </button>
+
+              <button className="btn-ghost" style={{ padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 6 }} onClick={() => { localStorage.clear(); navigate('/'); }}>
+                <LogOut size={14} /> <span style={{ fontSize: 13 }}>Sign out</span>
+              </button>
+            </div>
           </div>
         </header>
 
-        <div style={S.layout}>
+        {/* Dashboard Content */}
+        <div className="dashboard-container">
 
-          {/* ── LEFT COLUMN ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-
-            {/* Avatar card */}
-            <div style={{ ...S.card, padding: 24, textAlign: 'center' }}>
-              <div style={{ position: 'relative', display: 'inline-block', marginBottom: 14 }}>
-                {profileImage
-                  ? <img src={profileImage} alt="Profile" style={{ width: 84, height: 84, borderRadius: 18, objectFit: 'cover', border: '3px solid #f0f0f0' }} />
-                  : <div style={{ width: 84, height: 84, borderRadius: 18, background: '#fff5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto', border: '2px dashed #fca5a5' }}>
-                    <User size={34} color="#ef4444" />
+          {/* Sidebar */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            
+            {/* User Profile Summary */}
+            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 16, padding: 20, textAlign: 'center' }}>
+              <div style={{ position: 'relative', display: 'inline-block', marginBottom: 12 }}>
+                {profileImage ? (
+                  <img src={profileImage} alt="Profile" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', border: '3px solid #f1f5f9' }} />
+                ) : (
+                  <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px dashed #cbd5e1' }}>
+                    <User size={32} color="#94a3b8" />
                   </div>
-                }
-                <label style={{ position: 'absolute', bottom: -5, right: -5, background: '#ef4444', borderRadius: 8, padding: 6, cursor: 'pointer', display: 'flex', boxShadow: '0 2px 10px rgba(239,68,68,0.35)' }}>
-                  <Upload size={12} color="#fff" />
+                )}
+                <label style={{ position: 'absolute', bottom: 0, right: 0, background: '#ef4444', borderRadius: '50%', padding: 6, cursor: 'pointer', display: 'flex', color: '#fff', border: '2px solid #fff' }}>
+                  <Upload size={12} />
                   <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageUpload} />
                 </label>
               </div>
 
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#111', marginBottom: 3 }}>{donorInfo.fullName || 'Loading…'}</div>
-              <div style={{ fontSize: 12, color: '#bbb', fontWeight: 500, marginBottom: 14 }}>{donorInfo.email}</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{donorInfo.fullName || 'Loading...'}</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 2, marginBottom: 12 }}>{donorInfo.email}</div>
 
-              <div style={{ display: 'inline-block', background: 'linear-gradient(135deg,#ef4444,#b91c1c)', color: '#fff', borderRadius: 10, padding: '8px 20px' }}>
-                <span className="blood-type" style={{ fontSize: 22, fontWeight: 700 }}>{donorInfo.bloodType}</span>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', borderRadius: 8, padding: '4px 14px' }}>
+                <Droplet size={14} fill="#dc2626" />
+                <span style={{ fontSize: 14, fontWeight: 700, fontFamily: 'JetBrains Mono, monospace' }}>{donorInfo.bloodType}</span>
               </div>
             </div>
 
-            {/* Info / Edit card */}
-            <div style={{ ...S.card, padding: '6px 20px 16px' }}>
+            {/* Profile Info Card */}
+            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 16, padding: 20 }}>
               {isEditing ? (
-                <div style={{ paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 2 }}>Edit Profile</div>
-                  {[
-                    { key: 'phone', ph: 'Phone number', type: 'text' },
-                  ].map(f => (
-                    <input key={f.key} type={f.type} className="input-focus" style={S.inputField} value={editData[f.key]} onChange={e => setEditData({ ...editData, [f.key]: e.target.value })} placeholder={f.ph} />
-                  ))}
-                  {/* City + GPS */}
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <input type="text" className="input-focus" style={{ ...S.inputField, flex: 1 }}
-                      value={editData.city} onChange={e => setEditData({ ...editData, city: e.target.value })} placeholder="City" />
-                    <button type="button" onClick={detectMyLocation} disabled={gpsLoading}
-                      style={{ background: gpsLoading ? '#f0f0f0' : '#fff5f5', border: '1.5px solid #fecaca', borderRadius: 11, padding: '0 12px', cursor: gpsLoading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700, color: '#ef4444', flexShrink: 0 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 2 }}>Edit Profile</div>
+                  
+                  <input type="text" className="input-style" value={editData.phone} onChange={e => setEditData({ ...editData, phone: e.target.value })} placeholder="Phone number" />
+                  
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <input type="text" className="input-style" value={editData.city} onChange={e => setEditData({ ...editData, city: e.target.value })} placeholder="City" />
+                    <button type="button" onClick={detectMyLocation} disabled={gpsLoading} className="btn-ghost" style={{ padding: '0 10px', color: '#ef4444' }}>
                       <Navigation size={14} />
-                      {gpsLoading ? '...' : 'GPS'}
                     </button>
                   </div>
-                  <input type="date" className="input-focus" style={S.inputField} value={editData.dateOfBirth} onChange={e => setEditData({ ...editData, dateOfBirth: e.target.value })} />
-                  <select className="input-focus" style={S.inputField} value={editData.bloodGroup} onChange={e => setEditData({ ...editData, bloodGroup: e.target.value })}>
+
+                  <input type="date" className="input-style" value={editData.dateOfBirth} onChange={e => setEditData({ ...editData, dateOfBirth: e.target.value })} />
+                  
+                  <select className="input-style" value={editData.bloodGroup} onChange={e => setEditData({ ...editData, bloodGroup: e.target.value })}>
                     {BLOOD_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
                   </select>
-                  <button style={{ ...S.btnPrimary, marginTop: 4 }} onClick={handleUpdateProfile}>
+
+                  <button className="btn-primary" style={{ marginTop: 6 }} onClick={handleUpdateProfile}>
                     <CheckCircle size={14} /> Save Changes
                   </button>
-                  <button style={S.btnGhost} onClick={() => setIsEditing(false)}>Cancel</button>
+                  <button className="btn-ghost" onClick={() => setIsEditing(false)}>Cancel</button>
                 </div>
               ) : (
-                <>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   {[
-                    { icon: <Phone size={13} color="#ef4444" />, label: 'Phone', value: donorInfo.phone },
-                    { icon: <MapPin size={13} color="#ef4444" />, label: 'City', value: donorInfo.address },
-                    { icon: <Calendar size={13} color="#ef4444" />, label: 'Date of Birth', value: formatDate(donorInfo.dateOfBirth) },
+                    { icon: <Phone size={14} color="#64748b" />, label: 'Phone', value: donorInfo.phone },
+                    { icon: <MapPin size={14} color="#64748b" />, label: 'City', value: donorInfo.address },
+                    { icon: <Calendar size={14} color="#64748b" />, label: 'Date of Birth', value: formatDate(donorInfo.dateOfBirth) },
                   ].map((row, i) => (
-                    <div key={i} style={{ ...S.infoRow, ...(i === 2 ? { borderBottom: 'none' } : {}) }}>
-                      <div style={S.infoIcon}>{row.icon}</div>
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ width: 32, height: 32, background: '#f8fafc', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {row.icon}
+                      </div>
                       <div>
-                        <div style={S.infoLabel}>{row.label}</div>
-                        <div style={S.infoValue}>{row.value}</div>
+                        <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase' }}>{row.label}</div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>{row.value}</div>
                       </div>
                     </div>
                   ))}
-                  <button
-                    style={{ ...S.btnGhost, marginTop: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}
-                    onClick={() => setIsEditing(true)}
-                  >
+
+                  <button className="btn-ghost" style={{ width: '100%', marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }} onClick={() => setIsEditing(true)}>
                     <Edit2 size={13} /> Edit Profile
                   </button>
-                </>
+                </div>
               )}
             </div>
           </div>
 
-          {/* ── RIGHT COLUMN ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-
-            {/* CTA Banner */}
-            <div style={{ background: 'linear-gradient(130deg,#ef4444 0%,#991b1b 100%)', borderRadius: 18, padding: '22px 26px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+          {/* Main Content Area */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            
+            {/* Banner */}
+            <div className="banner-box" style={{ background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)', borderRadius: 16, padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
               <div>
-                <div style={{ fontSize: 17, fontWeight: 800, color: '#fff', marginBottom: 4 }}>Need Blood?</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.72)', fontWeight: 500, lineHeight: 1.5 }}>Submit a request and connect with nearby donors instantly.</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#ffffff', marginBottom: 4 }}>Need Urgent Blood?</div>
+                <div style={{ fontSize: 13, color: '#fca5a5', fontWeight: 500, lineHeight: 1.4 }}>Create a request and broadcast it instantly to nearby active donors.</div>
               </div>
-              <button
-                onClick={() => setShowDonationForm(true)}
-                style={{ background: '#fff', color: '#ef4444', border: 'none', borderRadius: 11, padding: '11px 18px', fontWeight: 700, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 7, flexShrink: 0, fontFamily: "'Sora',sans-serif", transition: 'opacity 0.15s' }}
-                onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
-                onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-              >
+              <button className="banner-btn" onClick={() => setShowDonationForm(true)} style={{ background: '#ffffff', color: '#dc2626', border: 'none', borderRadius: 10, padding: '10px 18px', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                 <FileText size={15} /> Make Request
               </button>
             </div>
 
-            {/* Tab Bar */}
+            {/* Controls Row */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', gap: 4, background: '#f0f0f0', borderRadius: 11, padding: 4 }}>
-                {[['requests', '🩸 Live Requests'], ['history', '📋 My History']].map(([id, label]) => (
-                  <button key={id} className={`tab-btn ${activeTab === id ? 'tab-on' : 'tab-off'}`} onClick={() => setActiveTab(id)}>{label}</button>
+              <div style={{ display: 'flex', gap: 4, background: '#e2e8f0', borderRadius: 10, padding: 3 }}>
+                {[ ['requests', 'Live Requests'], ['history', 'My History'] ].map(([id, label]) => (
+                  <button 
+                    key={id} 
+                    onClick={() => setActiveTab(id)}
+                    style={{
+                      border: 'none',
+                      background: activeTab === id ? '#ffffff' : 'transparent',
+                      color: activeTab === id ? '#0f172a' : '#64748b',
+                      borderRadius: 8,
+                      padding: '6px 14px',
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      boxShadow: activeTab === id ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                      transition: 'all 0.15s'
+                    }}
+                  >
+                    {label}
+                  </button>
                 ))}
               </div>
-              <span style={{ fontSize: 12, color: '#bbb', fontWeight: 600 }}>{requests.length} active</span>
+              <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>{requests.length} Requests Available</span>
             </div>
 
-            {/* Cards Grid */}
+            {/* Requests Cards Container */}
             {loadingRequests ? (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div className="requests-grid">
                 {[1, 2, 3, 4].map(i => (
-                  <div key={i} style={{ background: '#fff', border: '1px solid #f0f0f0', borderRadius: 16, padding: 18 }}>
-                    <div className="skel" style={{ height: 44, width: 44, borderRadius: 11, marginBottom: 12 }} />
-                    <div className="skel" style={{ height: 13, width: '65%', marginBottom: 8 }} />
-                    <div className="skel" style={{ height: 11, width: '45%', marginBottom: 16 }} />
-                    <div className="skel" style={{ height: 36, borderRadius: 10 }} />
+                  <div key={i} style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 18 }}>
+                    <div className="skel" style={{ height: 40, width: 40, marginBottom: 12 }} />
+                    <div className="skel" style={{ height: 14, width: '60%', marginBottom: 8 }} />
+                    <div className="skel" style={{ height: 12, width: '40%', marginBottom: 14 }} />
+                    <div className="skel" style={{ height: 36 }} />
                   </div>
                 ))}
               </div>
             ) : requests.length === 0 ? (
-              <div style={{ ...S.card, padding: 52, textAlign: 'center' }}>
-                <Droplet size={38} color="#fca5a5" style={{ margin: '0 auto 12px' }} />
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#333' }}>No active requests</div>
-                <div style={{ fontSize: 12, color: '#aaa', marginTop: 4, fontWeight: 500 }}>Check back soon for blood requests near you.</div>
+              <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 16, padding: 40, textAlign: 'center' }}>
+                <Droplet size={36} color="#cbd5e1" style={{ margin: '0 auto 10px' }} />
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#334155' }}>No active requests right now</div>
+                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>Check back soon for emergency requests nearby.</div>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div className="requests-grid">
                 {requests.map(req => {
                   const urg = urgencyConfig[req.urgency] || urgencyConfig.Low;
                   return (
                     <div key={req._id} className="req-card">
-                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
-                          <div style={{ background: '#fff5f5', border: '2px solid #fecaca', borderRadius: 11, width: 46, height: 46, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <span className="blood-type" style={{ fontSize: 14, fontWeight: 700, color: '#ef4444' }}>{req.bloodGroup}</span>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 10, width: 42, height: 42, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <span style={{ fontSize: 15, fontWeight: 700, color: '#dc2626', fontFamily: 'JetBrains Mono, monospace' }}>{req.bloodGroup}</span>
                           </div>
                           <div>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: '#111' }}>{req.patientName}</div>
-                            <div style={{ fontSize: 11, color: '#bbb', fontWeight: 500, marginTop: 2 }}>{req.hospital}</div>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{req.patientName}</div>
+                            <div style={{ fontSize: 11, color: '#64748b', marginTop: 1 }}>{req.hospital}</div>
                           </div>
                         </div>
-                        <div style={{ background: urg.bg, color: urg.text, borderRadius: 7, padding: '4px 9px', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }}>
-                          <span style={{ width: 5, height: 5, borderRadius: '50%', background: urg.dot, display: 'inline-block' }} />
+                        <span style={{ background: urg.bg, color: urg.text, border: `1px solid ${urg.border}`, borderRadius: 6, padding: '3px 8px', fontSize: 10, fontWeight: 700 }}>
                           {urg.label}
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+                        <div style={{ flex: 1, background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: 8, padding: '6px 8px', textAlign: 'center' }}>
+                          <div style={{ fontSize: 9, color: '#94a3b8', fontWeight: 700 }}>UNITS</div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginTop: 1 }}>{req.units || '—'}</div>
+                        </div>
+                        <div style={{ flex: 1, background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: 8, padding: '6px 8px', textAlign: 'center' }}>
+                          <div style={{ fontSize: 9, color: '#94a3b8', fontWeight: 700 }}>DATE</div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginTop: 1 }}>
+                            {req.createdAt ? new Date(req.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
+                          </div>
                         </div>
                       </div>
 
-                      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-                        {[['UNITS', req.units || '—'], ['DATE', req.createdAt ? new Date(req.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—']].map(([l, v]) => (
-                          <div key={l} style={{ flex: 1, background: '#fafafa', border: '1px solid #f0f0f0', borderRadius: 9, padding: '8px 10px', textAlign: 'center' }}>
-                            <div style={{ fontSize: 9, color: '#c0c0c0', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{l}</div>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginTop: 2 }}>{v}</div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <button className="respond-btn" onClick={() => toast.success("Details shared with Seeker!")}>
-                        Respond Now <ChevronRight size={13} />
+                      <button className="respond-btn" onClick={() => toast.success("Details shared with seeker!")}>
+                        Respond Now <ChevronRight size={14} />
                       </button>
                     </div>
                   );
@@ -416,57 +553,52 @@ logoText: { fontSize: 13, fontWeight: 800, color: '#111', letterSpacing: '0.3px'
         </div>
       </div>
 
-      {/* ── Modal ── */}
+      {/* Modal Window */}
       {showDonationForm && (
         <div className="modal-bg" onClick={e => e.target === e.currentTarget && setShowDonationForm(false)}>
           <div className="modal-box">
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 22 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div>
-                <div style={{ fontSize: 19, fontWeight: 800, color: '#111', fontFamily: "'Sora',sans-serif" }}>New Blood Request</div>
-                <div style={{ fontSize: 12, color: '#bbb', marginTop: 3, fontWeight: 500, fontFamily: "'Sora',sans-serif" }}>Fill in the details below</div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: '#0f172a' }}>New Blood Request</div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>Provide critical info for immediate matching</div>
               </div>
-              <button onClick={() => setShowDonationForm(false)} style={{ background: '#f5f5f5', border: 'none', borderRadius: 9, padding: 7, cursor: 'pointer', display: 'flex' }}>
-                <X size={15} color="#666" />
+              <button onClick={() => setShowDonationForm(false)} style={{ background: '#f1f5f9', border: 'none', borderRadius: 8, padding: 6, cursor: 'pointer' }}>
+                <X size={16} color="#64748b" />
               </button>
             </div>
 
-            <form onSubmit={handleDonationRequest} style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
-
-              {/* Patient Name */}
+            <form onSubmit={handleDonationRequest} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
-                <label style={S.sectionLabel}>Patient Name</label>
-                <input type="text" name="patientName" required className="input-focus" style={S.inputField} placeholder="Enter patient full name" />
+                <label style={{ fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4, display: 'block' }}>Patient Name</label>
+                <input type="text" name="patientName" required className="input-style" placeholder="Full name" />
               </div>
 
-              {/* Blood Group + Phone */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 11 }}>
+              <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
-                  <label style={S.sectionLabel}>Blood Type Needed</label>
-                  <select name="bloodGroup" className="input-focus" style={S.inputField}>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4, display: 'block' }}>Blood Group</label>
+                  <select name="bloodGroup" className="input-style">
                     {BLOOD_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={S.sectionLabel}>Contact Number</label>
-                  <input type="text" name="phone" required className="input-focus" style={S.inputField} placeholder="03xx-xxxxxxx" />
+                  <label style={{ fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4, display: 'block' }}>Contact Phone</label>
+                  <input type="text" name="phone" required className="input-style" placeholder="03xx-xxxxxxx" />
                 </div>
               </div>
 
-              {/* Hospital */}
               <div>
-                <label style={S.sectionLabel}>Hospital & Area Address</label>
-                <input type="text" name="hospital" required className="input-focus" style={S.inputField} placeholder="e.g. Mayo Hospital, Lahore" />
+                <label style={{ fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4, display: 'block' }}>Hospital & Location</label>
+                <input type="text" name="hospital" required className="input-style" placeholder="e.g. Mayo Hospital, Lahore" />
               </div>
 
-              {/* Units + Urgency */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 11 }}>
+              <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
-                  <label style={S.sectionLabel}>Units Required</label>
-                  <input type="number" name="units" min="1" required className="input-focus" style={S.inputField} placeholder="e.g. 2" />
+                  <label style={{ fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4, display: 'block' }}>Units Needed</label>
+                  <input type="number" name="units" min="1" defaultValue="1" required className="input-style" />
                 </div>
                 <div>
-                  <label style={S.sectionLabel}>Urgency</label>
-                  <select name="urgency" className="input-focus" style={S.inputField}>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4, display: 'block' }}>Urgency Level</label>
+                  <select name="urgency" className="input-style">
                     <option value="High">🔴 High</option>
                     <option value="Medium">🟡 Medium</option>
                     <option value="Low">🟢 Low</option>
@@ -474,37 +606,36 @@ logoText: { fontSize: 13, fontWeight: 800, color: '#111', letterSpacing: '0.3px'
                 </div>
               </div>
 
-              {/* Notes */}
               <div>
-                <label style={S.sectionLabel}>Additional Notes</label>
-                <textarea name="notes" className="input-focus" style={{ ...S.inputField, resize: 'none' }} rows={3} placeholder="Patient condition, any extra details…" />
+                <label style={{ fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 4, display: 'block' }}>Additional Notes</label>
+                <textarea name="notes" className="input-style" rows={3} style={{ resize: 'none' }} placeholder="Condition, room number..." />
               </div>
 
-              <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-                <button type="button" style={S.btnGhost} onClick={() => setShowDonationForm(false)}>Cancel</button>
-                <button type="submit" style={S.btnPrimary}>Submit Request</button>
+              <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+                <button type="button" className="btn-ghost" style={{ flex: 1 }} onClick={() => setShowDonationForm(false)}>Cancel</button>
+                <button type="submit" className="btn-primary" style={{ flex: 1 }}>Submit Request</button>
               </div>
             </form>
           </div>
         </div>
       )}
-      {/* ── NOTIFICATION PANEL ── */}
+
+      {/* Notifications Drawer */}
       {showNotifPanel && (
-        <div style={{ position: 'fixed', top: 70, right: 20, width: 360, maxHeight: '70vh', overflowY: 'auto', background: '#fff', borderRadius: 18, boxShadow: '0 20px 60px rgba(0,0,0,0.15)', border: '1px solid #f0f0f0', zIndex: 100 }}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid #f5f5f5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontWeight: 800, fontSize: 14, color: '#111' }}>🔔 Notifications ({notifications.length})</span>
-            <button onClick={() => setNotifications([])} style={{ background: 'none', border: 'none', fontSize: 11, color: '#ef4444', cursor: 'pointer', fontWeight: 700 }}>Clear All</button>
+        <div style={{ position: 'fixed', top: 70, right: 20, width: 320, maxHeight: '70vh', overflowY: 'auto', background: '#ffffff', borderRadius: 14, boxShadow: '0 10px 30px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0', zIndex: 100 }}>
+          <div style={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontWeight: 700, fontSize: 13, color: '#0f172a' }}>Notifications ({notifications.length})</span>
+            <button onClick={() => setNotifications([])} style={{ background: 'none', border: 'none', fontSize: 11, color: '#ef4444', cursor: 'pointer', fontWeight: 600 }}>Clear All</button>
           </div>
           {notifications.length === 0 ? (
-            <div style={{ padding: 32, textAlign: 'center', color: '#bbb', fontSize: 13 }}>No notifications yet</div>
+            <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>No new alerts</div>
           ) : (
             notifications.map((notif, i) => (
-              <div key={i} style={{ padding: '14px 20px', borderBottom: '1px solid #f9f9f9', background: i === 0 ? '#fff5f5' : '#fff' }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#ef4444', marginBottom: 4 }}>{notif.message}</div>
-                <div style={{ fontSize: 11, color: '#666', marginBottom: 2 }}>👤 Patient: {notif.patientName}</div>
-                <div style={{ fontSize: 11, color: '#666', marginBottom: 2 }}>🏥 {notif.hospital}</div>
-                <div style={{ fontSize: 11, color: '#666' }}>📞 {notif.phone}</div>
-                <div style={{ fontSize: 10, color: '#bbb', marginTop: 4 }}>{new Date(notif.timestamp).toLocaleTimeString()}</div>
+              <div key={i} style={{ padding: '12px 16px', borderBottom: '1px solid #f8fafc', background: i === 0 ? '#fef2f2' : '#ffffff' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#dc2626', marginBottom: 2 }}>{notif.message}</div>
+                <div style={{ fontSize: 11, color: '#475569' }}>Patient: {notif.patientName}</div>
+                <div style={{ fontSize: 11, color: '#475569' }}>Hospital: {notif.hospital}</div>
+                <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 4 }}>{new Date(notif.timestamp).toLocaleTimeString()}</div>
               </div>
             ))
           )}
