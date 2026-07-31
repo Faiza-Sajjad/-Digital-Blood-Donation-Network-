@@ -17,7 +17,8 @@ Enable patients to post urgent blood requests
 Implement secure authentication with OTP email verification
 Create a responsive interface usable on any device
 Automate deployment using modern CI/CD practices
-✨ Key Features
+
+Key Features
 User Authentication — Secure login and registration using JWT and bcrypt
 OTP Verification — Email-based one-time password via Nodemailer
 Donor Registration — Register with blood group, city, and availability
@@ -48,6 +49,7 @@ DevOps
 Vercel (Hosting + CDN)
 GitHub (Version Control)
 Vercel Auto-Deploy (CI/CD)
+
 🏗️ System Architecture
 Client Layer
 Browser (Chrome / Firefox / Safari / Edge)
@@ -111,6 +113,7 @@ Vercel detects the push via webhook
 Build and test runs automatically
 On success, app is deployed live to the global CDN
 Live URL: https://digital-blood-donation-network.vercel.app/
+
 🔒 Security Measures
 Passwords hashed with bcrypt — never stored as plain text
 All protected routes require a valid JWT token
