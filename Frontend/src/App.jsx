@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
-import { Toaster } from 'sonner'; // 1. Pehle import karein
+import { Toaster } from 'sonner'; 
 
 import HomePage from './Pages/HomePage';
 import SeekerDashboard from './Pages/BloodSeekerDashboard';
@@ -11,7 +11,7 @@ import BloodDonationGuide from './Pages/BloodDonationGuide';
 function App() {
   return (
     <>
-      {/* 2. Toaster ko Routes se bahar yahan rakhein */}
+      {/* Toaster Routes */}
       <Toaster position="top-right" richColors closeButton />
 
       <Routes>
