@@ -12,7 +12,6 @@ const urgencyConfig = {
   Low: { bg: '#f0fdf4', text: '#16a34a', dot: '#16a34a', label: 'Routine' },
 };
 
-// Date format function — "2000-02-11T00:00:00.000Z" → "Feb 11, 2000"
 const formatDate = (dateStr) => {
   if (!dateStr || dateStr === '—') return '—';
   try {
@@ -38,41 +37,60 @@ export default function DonorDashboard() {
     const token = localStorage.getItem("token");
     if (!token) { navigate('/'); return; }
     try {
-      const profileRes = await fetch("https://digital-blood-donation-network.onrender.com/api/donor/me", { headers: { 'Authorization': `Bearer ${token}` } });
+      const profileRes = await fetch("https://digital-blood-donation-network.onrender.com/api/donor/me", { 
+        headers: { 'Authorization': `Bearer ${token}` } 
+      });
       const profileData = await profileRes.json();
+      
       if (profileData.success) {
         const u = profileData.user;
-        setDonorInfo({ id: u._id, fullName: u.name, email: u.email, phone: u.phone || '—', bloodType: u.bloodGroup || '?', address: u.city || '—', dateOfBirth: u.dateOfBirth || '—' });
-        // Edit form ke liye date ko YYYY-MM-DD format mein rakhna zaroori hai
+        // Save userId for Socket registration
+        localStorage.setItem("userId", u._id);
+
+        setDonorInfo({ 
+          id: u._id, 
+          fullName: u.name, 
+          email: u.email, 
+          phone: u.phone || '—', 
+          bloodType: u.bloodGroup || '?', 
+          address: u.city || '—', 
+          dateOfBirth: u.dateOfBirth || '—' 
+        });
+
         const dobForInput = u.dateOfBirth ? new Date(u.dateOfBirth).toISOString().split('T')[0] : '';
-        setEditData({ name: u.name, phone: u.phone || '', city: u.city || '', bloodGroup: u.bloodGroup || '', dateOfBirth: dobForInput });
+        setEditData({ 
+          name: u.name, 
+          phone: u.phone || '', 
+          city: u.city || '', 
+          bloodGroup: u.bloodGroup || '', 
+          dateOfBirth: dobForInput 
+        });
       }
+
       const reqRes = await fetch("https://digital-blood-donation-network.onrender.com/api/requests/all");
       const reqData = await reqRes.json();
       if (reqData.success) setRequests(reqData.requests);
-    } catch { toast.error("Error loading data"); }
-    finally { setLoadingRequests(false); }
+    } catch { 
+      toast.error("Error loading data"); 
+    } finally { 
+      setLoadingRequests(false); 
+    }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { 
+    fetchData(); 
+  }, []);
 
-  // Socket.IO — real-time notifications
+  // Socket.IO — Real-time Notifications Setup
   useEffect(() => {
-    // userId — donorInfo se milega ya localStorage se
-    const userId = localStorage.getItem("userId") || localStorage.getItem("token") ? null : null;
-
     const socket = io("https://digital-blood-donation-network.onrender.com");
 
-    // fetchData ke baad id milegi — 
-    const registerSocket = () => {
+    socket.on("connect", () => {
       const uid = localStorage.getItem("userId");
       if (uid) {
         socket.emit("register", uid);
-        console.log("Socket registered with userId:", uid);
       }
-    };
-
-    socket.on("connect", registerSocket);
+    });
 
     socket.on("urgent_notification", (notif) => {
       setNotifications(prev => [notif, ...prev]);
@@ -95,7 +113,6 @@ export default function DonorDashboard() {
     return () => socket.disconnect();
   }, []);
 
-  // GPS location detect 
   const detectMyLocation = () => {
     if (!navigator.geolocation) { toast.error('GPS support nahi hai'); return; }
     setGpsLoading(true);
@@ -144,7 +161,6 @@ export default function DonorDashboard() {
     }
   };
 
-  // fields
   const handleDonationRequest = async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
@@ -155,13 +171,15 @@ export default function DonorDashboard() {
       urgency: fd.get('urgency'),
       phone: fd.get('phone'),
       hospital: fd.get('hospital'),
-      city: fd.get('hospital'), // Request model mein city required 
+      city: donorInfo.address !== '—' ? donorInfo.address : fd.get('hospital'), // Sahi city fallback
       additionalNotes: fd.get('notes'),
     };
     try {
       const token = localStorage.getItem("token");
       const res = await fetch("https://digital-blood-donation-network.onrender.com/api/requests/create", {
-        method: "POST", headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${token}` }, body: JSON.stringify(payload),
+        method: "POST", 
+        headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${token}` }, 
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (data.success) { toast.success('Request submitted!'); setShowDonationForm(false); fetchData(); }
@@ -215,8 +233,7 @@ export default function DonorDashboard() {
       `}</style>
 
       <div style={S.page}>
-
-        {/* ── Header ── */}
+        {/* Header */}
         <header style={S.header}>
           <div style={S.logo}>
             <div style={S.logoIcon}><Heart size={17} color="#fff" fill="#fff" /></div>
@@ -226,7 +243,6 @@ export default function DonorDashboard() {
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {/* Notification Bell */}
             <button
               onClick={() => setShowNotifPanel(v => !v)}
               style={{ position: 'relative', background: notifications.length > 0 ? '#fff1f1' : '#f8f8f8', border: `1px solid ${notifications.length > 0 ? '#fecaca' : '#ececec'}`, borderRadius: 10, padding: '8px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
@@ -245,11 +261,8 @@ export default function DonorDashboard() {
         </header>
 
         <div style={S.layout}>
-
-          {/* ── LEFT COLUMN ── */}
+          {/* Left Column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-
-            {/* Avatar card */}
             <div style={{ ...S.card, padding: 24, textAlign: 'center' }}>
               <div style={{ position: 'relative', display: 'inline-block', marginBottom: 14 }}>
                 {profileImage
@@ -272,17 +285,13 @@ export default function DonorDashboard() {
               </div>
             </div>
 
-            {/* Info / Edit card */}
+            {/* Info Card */}
             <div style={{ ...S.card, padding: '6px 20px 16px' }}>
               {isEditing ? (
                 <div style={{ paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 2 }}>Edit Profile</div>
-                  {[
-                    { key: 'phone', ph: 'Phone number', type: 'text' },
-                  ].map(f => (
-                    <input key={f.key} type={f.type} className="input-focus" style={S.inputField} value={editData[f.key]} onChange={e => setEditData({ ...editData, [f.key]: e.target.value })} placeholder={f.ph} />
-                  ))}
-                  {/* City + GPS */}
+                  <input type="text" className="input-focus" style={S.inputField} value={editData.phone} onChange={e => setEditData({ ...editData, phone: e.target.value })} placeholder="Phone number" />
+                  
                   <div style={{ display: 'flex', gap: 8 }}>
                     <input type="text" className="input-focus" style={{ ...S.inputField, flex: 1 }}
                       value={editData.city} onChange={e => setEditData({ ...editData, city: e.target.value })} placeholder="City" />
@@ -327,10 +336,8 @@ export default function DonorDashboard() {
             </div>
           </div>
 
-          {/* ── RIGHT COLUMN ── */}
+          {/* Right Column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-
-            {/* CTA Banner */}
             <div style={{ background: 'linear-gradient(130deg,#ef4444 0%,#991b1b 100%)', borderRadius: 18, padding: '22px 26px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
               <div>
                 <div style={{ fontSize: 17, fontWeight: 800, color: '#fff', marginBottom: 4 }}>Need Blood?</div>
@@ -338,15 +345,12 @@ export default function DonorDashboard() {
               </div>
               <button
                 onClick={() => setShowDonationForm(true)}
-                style={{ background: '#fff', color: '#ef4444', border: 'none', borderRadius: 11, padding: '11px 18px', fontWeight: 700, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 7, flexShrink: 0, fontFamily: "'Sora',sans-serif", transition: 'opacity 0.15s' }}
-                onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
-                onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                style={{ background: '#fff', color: '#ef4444', border: 'none', borderRadius: 11, padding: '11px 18px', fontWeight: 700, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 7, flexShrink: 0, fontFamily: "'Sora',sans-serif" }}
               >
                 <FileText size={15} /> Make Request
               </button>
             </div>
 
-            {/* Tab Bar */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', gap: 4, background: '#f0f0f0', borderRadius: 11, padding: 4 }}>
                 {[['requests', '🩸 Live Requests'], ['history', '📋 My History']].map(([id, label]) => (
@@ -356,7 +360,6 @@ export default function DonorDashboard() {
               <span style={{ fontSize: 12, color: '#bbb', fontWeight: 600 }}>{requests.length} active</span>
             </div>
 
-            {/* Cards Grid */}
             {loadingRequests ? (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                 {[1, 2, 3, 4].map(i => (
@@ -417,7 +420,7 @@ export default function DonorDashboard() {
         </div>
       </div>
 
-      {/* ── Modal ── */}
+      {/* Modal */}
       {showDonationForm && (
         <div className="modal-bg" onClick={e => e.target === e.currentTarget && setShowDonationForm(false)}>
           <div className="modal-box">
@@ -432,14 +435,11 @@ export default function DonorDashboard() {
             </div>
 
             <form onSubmit={handleDonationRequest} style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
-
-              {/* Patient Name */}
               <div>
                 <label style={S.sectionLabel}>Patient Name</label>
                 <input type="text" name="patientName" required className="input-focus" style={S.inputField} placeholder="Enter patient full name" />
               </div>
 
-              {/* Blood Group + Phone */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 11 }}>
                 <div>
                   <label style={S.sectionLabel}>Blood Type Needed</label>
@@ -453,13 +453,11 @@ export default function DonorDashboard() {
                 </div>
               </div>
 
-              {/* Hospital */}
               <div>
                 <label style={S.sectionLabel}>Hospital & Area Address</label>
                 <input type="text" name="hospital" required className="input-focus" style={S.inputField} placeholder="e.g. Mayo Hospital, Lahore" />
               </div>
 
-              {/* Units + Urgency */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 11 }}>
                 <div>
                   <label style={S.sectionLabel}>Units Required</label>
@@ -475,7 +473,6 @@ export default function DonorDashboard() {
                 </div>
               </div>
 
-              {/* Notes */}
               <div>
                 <label style={S.sectionLabel}>Additional Notes</label>
                 <textarea name="notes" className="input-focus" style={{ ...S.inputField, resize: 'none' }} rows={3} placeholder="Patient condition, any extra details…" />
@@ -489,7 +486,8 @@ export default function DonorDashboard() {
           </div>
         </div>
       )}
-      {/* ── NOTIFICATION PANEL ── */}
+
+      {/* Notifications Panel */}
       {showNotifPanel && (
         <div style={{ position: 'fixed', top: 70, right: 20, width: 360, maxHeight: '70vh', overflowY: 'auto', background: '#fff', borderRadius: 18, boxShadow: '0 20px 60px rgba(0,0,0,0.15)', border: '1px solid #f0f0f0', zIndex: 100 }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid #f5f5f5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
